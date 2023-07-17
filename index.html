@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Autocomplete Widget</title>
+</head>
+
+<body>
+    <h1>Autocomplete Widget</h1>
+    <input type="text" id="searchInput" placeholder="Start typing...">
+    <ul id="suggestionsList"></ul>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsList = document.getElementById('suggestionsList');
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            if (query === '') {
+                suggestionsList.innerHTML = '';
+                return;
+            }
+
+            const request = new XMLHttpRequest();
+            request.open('GET', `/autocomplete?query=${query}`, true);
+
+            request.onload = function () {
+                if (request.status >= 200 && request.status < 400) {
+                    const suggestions = JSON.parse(request.responseText);
+                    suggestionsList.innerHTML = '';
+                    suggestions.forEach((word) => {
+                        const li = document.createElement('li');
+                        li.textContent = word;
+                        suggestionsList.appendChild(li);
+                    });
+                } else {
+                    console.error('An error occurred while processing the autocomplete request.');
+                }
+            };
+
+            request.onerror = function () {
+                console.error('An error occurred while making the autocomplete request.');
+            };
+
+            request.send();
+        });
+    </script>
+</body>
+
+</html>
